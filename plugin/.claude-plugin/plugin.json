@@ -6,6 +6,9 @@
   },
   "homepage": "https://github.com/syntaxixr/receipts",
   "repository": "https://github.com/syntaxixr/receipts",
+  "documentationUrl": "https://github.com/syntaxixr/receipts#readme",
+  "supportUrl": "https://github.com/syntaxixr/receipts/issues",
+  "privacyPolicyUrl": "https://github.com/syntaxixr/receipts/blob/main/docs/privacy.md",
   "license": "MIT",
   "keywords": [
     "claude-code",
