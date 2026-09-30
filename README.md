@@ -202,7 +202,7 @@ Details and the threat model: [SECURITY.md](.github/SECURITY.md). Report a vulne
 ## Roadmap
 
 - Mutation testing limited to the changed lines: "your tests kill 7 of 9 mutants in this diff"
-- Go, Java, Rust
+- [Go](https://github.com/syntaxixr/receipts/issues/2), [Rust](https://github.com/syntaxixr/receipts/issues/3), [Java](https://github.com/syntaxixr/receipts/issues/4): help wanted, each issue explains how a runner plugs in
 - Signed receipts (in-toto attestations) attached to each commit
 - Per-agent and per-team stats: how many AI fixes arrive proven
 
