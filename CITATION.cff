@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use Receipts or its study of 181 real changes, please cite it as below."
+title: "Receipts: checks that a change's tests would have caught the bug it fixes"
+type: software
+authors:
+  - alias: syntaxixr
+    website: "https://github.com/syntaxixr"
+repository-code: "https://github.com/syntaxixr/receipts"
+url: "https://github.com/syntaxixr/receipts/blob/main/docs/study.md"
+license: MIT
+date-released: "2026-09-26"
+keywords:
+  - testing
+  - regression tests
+  - coding agents
+  - claude code
+  - pytest
+  - vitest
+  - jest
+abstract: >-
+  Receipts runs every test a change adds or edits twice: with the change, and
+  with the changed source files reverted to the base branch. A test for a fix
+  must fail without it. A study over 81 maintainer fix commits and 100 pull
+  requests with coding-agent fingerprints found 90% and 82% proven; in 10% of
+  agent pull requests every test failed on the old code only because it
+  imported a name the change added.
