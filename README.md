@@ -27,6 +27,14 @@ Coding agents now write most of the tests in their pull requests, and CI turns g
 - **Zero dependencies.** Node 20+ and git. It uses your project's own pytest, vitest or jest.
 - **Everywhere the work happens:** a skill for Claude Code and other agents, a GitHub Action that comments on the PR, and a CLI.
 
+**Try it now**, on any branch with a fix and its test, nothing to install:
+
+```bash
+npx github:syntaxixr/receipts check
+```
+
+On 100 real pull requests written by coding agents, **1 in 10** had tests that never ran against the old code. [What we found →](#what-we-found-on-real-code)
+
 ## How it works
 
 <p align="center">
