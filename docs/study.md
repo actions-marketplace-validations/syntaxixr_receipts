@@ -32,7 +32,7 @@ Percentages are of judged changes. Full tables, every change with a link, and th
 ### What stands out
 
 - **Most changes in these projects come with a test that proves them**: 93% of maintainer commits and 88% of agent PRs have at least one test that fails without the change (proven or mixed). These are well-run projects, several of them maintained by the companies that make the agents.
-- **Agents' typical gap is WEAK, not THEATER.** In 10% of agent PRs every test fails on the old code only because the code it calls did not exist yet, most often because the test file imports a name the change adds at the top, so on the old code nothing in that file can even load. Those tests never run against the old behavior. No maintainer commit in the sample had that shape.
+- **Agents' typical gap is WEAK, not THEATER.** In 10% of agent PRs every test fails on the old code only because the code it calls did not exist yet, most often because the test file imports a name the change adds at the top, so on the old code nothing in that file can even load. Those tests never run against the old behavior. No maintainer commit in the sample had that shape. Maintainers do have 9 WEAK tests (4% of their tests, against 13% for agents), but all nine sit in one marshmallow feature commit that added a new keyword argument. Its test file loaded fine, and the commit also had tests that proved it, so it counts as Mixed, not Weak only. By change: 14 of 91 judged agent PRs contain a WEAK test, against 1 of 71 maintainer commits.
 - **THEATER is rare, and every case has a story**:
   - fixes that only change types (a `TypedDict` key in claude-agent-sdk-python, two `src/types.ts`-only fixes in defu, marshmallow's `error_messages` annotation): no runtime test can prove them, a type checker can;
   - a platform-bound fix (a Windows newline fix in the MCP SDK) run on Linux, where the bug does not exist;
@@ -51,6 +51,8 @@ Running over real history found the cases this study depends on: parametrize tab
 - Pull requests include unmerged ones. A THEATER test in a PR that was later rejected or reworked still says something about what the agent produced, not about what shipped.
 - Receipts runs the test runner directly. Tests that need the project's own environment (a `TZ`, services, feature flags) can read as THEATER in a plain run; we set `TZ` for dayjs, whose timezone fixes only reproduce outside UTC.
 - A test module that imports a name the change adds fails to load on the old code, so every test in it is WEAK, even ones that exercise the fixed behavior. Agent PRs that add a constant and import it at the top of an existing test file hit this often.
+- WEAK and BROKEN are told apart by which run fails. BROKEN means the test fails with the change applied, so it says nothing about the old code. WEAK means it passes with the change and fails on the old code with an error that names something missing (`ImportError`, `cannot import name`, `has no attribute` on a project object and so on). A file that dies at import on the old code is therefore WEAK, not BROKEN.
+- "Weak only" is counted per change, the WEAK share of tests is counted per test. The two numbers answer different questions and are not meant to match.
 - A test can prove a change and still test the wrong thing. PROVEN means "this test notices the change", not "the change is correct".
 
 ## Reproduce
