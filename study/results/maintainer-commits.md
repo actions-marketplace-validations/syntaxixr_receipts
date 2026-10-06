@@ -8,7 +8,7 @@
 | Human-authored commits | 75 | 65 | 59 (91%) | 2 (3%) | 4 (6%) | 0 (0%) | 9 | 1 | 0 |
 | Agent-authored (commit trailers or PR commits) | 6 | 6 | 5 (83%) | 0 (0%) | 1 (17%) | 0 (0%) | 0 | 0 | 0 |
 
-*Judged*: at least one test ran on both sides. *Proven*: at least one test fails without the change, and none of the others is THEATER (GUARD tests next to proof are fine). *Mixed*: some tests prove the change, others are WEAK (or, for a refactor, some tests CHANGED). *Unproven*: every test passes without the change. *Weak only*: tests fail without the change only because the function they call did not exist yet.
+*Judged*: at least one test ran on both sides. *Proven*: at least one test fails without the change, and none of the others is THEATER (GUARD tests next to proof are fine). *Mixed*: some tests prove the change, others are WEAK (or, for a refactor, some tests CHANGED). *Unproven*: every test passes without the change. *Weak only*: tests fail without the change only because the code they call did not exist yet: a new function, or a new name the test file imports, which stops the whole file from loading.
 
 ## Tests
 
