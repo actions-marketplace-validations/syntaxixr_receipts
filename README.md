@@ -35,6 +35,8 @@ npx github:syntaxixr/receipts check
 
 On 100 real pull requests written by coding agents, **1 in 10** had tests that never ran against the old code. [What we found →](#what-we-found-on-real-code)
 
+Receipts Check is listed in Anthropic's plugin directory for Claude Code, Cowork and the Claude apps.
+
 ## How it works
 
 <p align="center">
@@ -216,6 +218,10 @@ node docs/media/make-media.mjs      # redraws the README images from real runs (
 ```
 
 The build in `plugin/skills/prove-fix/scripts/` is committed, because the plugin, the skill, the CLI and the Action all run it as is. Rebuild and commit it with every change to `src/`; CI fails when they drift.
+
+## See also
+
+[goalpost](https://github.com/syntaxixr/goalpost): makes Claude Code's `/goal` pass real checks and a fresh-eyes audit before Claude is allowed to stop. Receipts checks that the tests prove the fix, goalpost checks that the goal is really done.
 
 ## License
 

@@ -18,7 +18,7 @@ Verdicts per test: PROVEN (fails without the change), GUARD (passes on both side
 - **Proven**: at least one test proves it and none is THEATER or WEAK.
 - **Mixed**: some tests prove it, some are WEAK.
 - **Unproven**: every test passes without the change.
-- **Weak only**: tests fail without the change only because what they call is new.
+- **Weak only**: tests fail without the change only because the code they call did not exist yet: a new function, or a new name the test file imports, which stops the whole file from loading.
 
 ## Results
 
@@ -32,7 +32,7 @@ Percentages are of judged changes. Full tables, every change with a link, and th
 ### What stands out
 
 - **Most changes in these projects come with a test that proves them**: 93% of maintainer commits and 88% of agent PRs have at least one test that fails without the change (proven or mixed). These are well-run projects, several of them maintained by the companies that make the agents.
-- **Agents' typical gap is WEAK, not THEATER.** In 10% of agent PRs every test fails on the old code only because the code it calls did not exist yet, most often because the test file imports a name the change adds at the top, so on the old code nothing in that file can even load. Those tests never run against the old behavior. No maintainer commit in the sample had that shape. Maintainers do have 9 WEAK tests (4% of their tests, against 13% for agents), but all nine sit in one marshmallow feature commit that added a new keyword argument. Its test file loaded fine, and the commit also had tests that proved it, so it counts as Mixed, not Weak only. By change: 14 of 91 judged agent PRs contain a WEAK test, against 1 of 71 maintainer commits.
+- **Agents' typical gap is WEAK, not THEATER.** In 10% of agent PRs every test fails on the old code only because the code it calls did not exist yet, most often because the test file imports a name the change adds at the top, so on the old code nothing in that file can even load. Those tests never run against the old behavior. No maintainer commit in the sample had that shape. Maintainers do have 9 WEAK tests (4% of their tests, against 13% for agents), but all nine sit in one marshmallow feature commit that added a new keyword argument. Its test file loaded fine, and the commit also had tests that proved it, so it counts as Mixed, not Weak only. By change: 14 of 91 judged agent PRs contain a WEAK test, against 1 of 71 maintainer commits. WEAK sits mostly where nothing else proves the change: it is in 9 of the 11 agent PRs without a PROVEN test, and in 5 of the 80 that have one (maintainers: 0 of 8 and 1 of 63). The counts are small, and the maintainer side rests on a single commit.
 - **THEATER is rare, and every case has a story**:
   - fixes that only change types (a `TypedDict` key in claude-agent-sdk-python, two `src/types.ts`-only fixes in defu, marshmallow's `error_messages` annotation): no runtime test can prove them, a type checker can;
   - a platform-bound fix (a Windows newline fix in the MCP SDK) run on Linux, where the bug does not exist;

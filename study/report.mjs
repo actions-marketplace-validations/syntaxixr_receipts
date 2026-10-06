@@ -65,7 +65,7 @@ for (const [name, group] of groups) {
   );
 }
 out.push("");
-out.push("*Judged*: at least one test ran on both sides. *Proven*: at least one test fails without the change, and none of the others is THEATER (GUARD tests next to proof are fine). *Mixed*: some tests prove the change, others are WEAK (or, for a refactor, some tests CHANGED). *Unproven*: every test passes without the change. *Weak only*: tests fail without the change only because the function they call did not exist yet.", "");
+out.push("*Judged*: at least one test ran on both sides. *Proven*: at least one test fails without the change, and none of the others is THEATER (GUARD tests next to proof are fine). *Mixed*: some tests prove the change, others are WEAK (or, for a refactor, some tests CHANGED). *Unproven*: every test passes without the change. *Weak only*: tests fail without the change only because the code they call did not exist yet: a new function, or a new name the test file imports, which stops the whole file from loading.", "");
 
 const tests = rows.flatMap((r) => r.tests);
 const byVerdict = {};
