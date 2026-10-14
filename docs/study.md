@@ -55,6 +55,10 @@ Running over real history found the cases this study depends on: parametrize tab
 - "Weak only" is counted per change, the WEAK share of tests is counted per test. The two numbers answer different questions and are not meant to match.
 - A test can prove a change and still test the wrong thing. PROVEN means "this test notices the change", not "the change is correct".
 
+## Next, written down before it is run
+
+The agent-versus-maintainer contrast already holds at this size (1 of 71 against 14 of 91 changes with a WEAK test, p = 0.0015 one-sided, Fisher). What it can't do yet is put a useful bound on the ratio. The next step is a larger maintainer sample, a few hundred commits, with one rule for both arms: the selection rule (for example test churn) is published per change on both sides, and the new commits get their own row instead of being folded into the 71. A reader on dev.to predicted it moves the maintainer rate up, toward the agent rate, because the one maintainer event here is exactly a churn-shaped commit. That prediction is recorded here before any of it is run.
+
 ## Reproduce
 
 ```bash
