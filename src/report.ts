@@ -59,7 +59,8 @@ export function toText(r: Receipt, color: boolean): string {
     for (const t of sorted(r)) {
       const [mark, tone] = MARK[t.verdict];
       out.push(`  ${c(tone, `${mark} ${t.verdict.padEnd(9)}`)} ${ids.get(t)!.padEnd(width)}  ${c("2", t.reason)}`);
-      if (t.detail && t.verdict !== "PROVEN") out.push(`  ${" ".repeat(12 + width)}${c("2", `↳ ${plain(t.detail)}`)}`);
+      // For PROVEN the line is how the old code failed: it shows the test reached its assertion.
+      if (t.detail) out.push(`  ${" ".repeat(12 + width)}${c("2", `↳ ${t.verdict === "PROVEN" ? "on the old code: " : ""}${plain(t.detail)}`)}`);
     }
     out.push("");
   }
@@ -94,7 +95,7 @@ export function toMarkdown(r: Receipt): string {
     out.push("| | Verdict | Test | Why |");
     out.push("|---|---|---|---|");
     for (const t of sorted(r)) {
-      const why = t.detail && t.verdict !== "PROVEN" ? `${t.reason}<br>${codeSpan(t.detail, 200)}` : t.reason;
+      const why = t.detail ? `${t.reason}<br>${t.verdict === "PROVEN" ? "on the old code: " : ""}${codeSpan(t.detail, 200)}` : t.reason;
       out.push(`| ${ICON[t.verdict]} | ${t.verdict} | ${codeSpan(t.id, 160)} | ${why} |`);
     }
     out.push("");
