@@ -32,7 +32,7 @@ Receipts compares against the PR base, `origin/HEAD`, `main` or `master`; pass `
 | PROVEN | Fails without the change, passes with it | Done |
 | GUARD | Passes on both sides, next to a PROVEN test | Fine: it guards the neighboring behavior |
 | THEATER | Passes even without the change, and no test proves it | Rewrite the test around the exact input that was broken |
-| WEAK | Fails on the old code only because a name it imports did not exist | Fine for a new feature; for a fix, test the behavior |
+| WEAK | Fails on the old code only because a name it imports did not exist | Fine for a new feature; for a fix, test the behavior. If the bug report is that exact error (the missing name is the bug), quote it in the commit message and it counts as PROVEN |
 | BROKEN | Fails with the change | Fix the code or the test |
 | FLAKY | Different results on the same code | Remove the nondeterminism: time, randomness, ordering, network |
 | PRESERVED | Refactor: passes before and after | Done: behavior kept |
