@@ -251,3 +251,30 @@ test("WEAK means the code did not exist, not that the old code misbehaved", asyn
   assert.ok(!isMissingSymbol("TypeError: value.map is not a function"));
   assert.ok(!isMissingSymbol("AssertionError: expected 1 to be 2"));
 });
+
+test("xdist workers write their own results file, and a torn line does not sink the run", async () => {
+  const { readRecords } = await import("../src/runners/pytest.js");
+  const { spawnSync } = await import("node:child_process");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "receipts-records-"));
+  const out = path.join(dir, "out.json");
+  // Concurrent appends to one file lose and tear lines on Windows, so a worker must not share the controller's file.
+  const py = [
+    "import types, receipts_pytest as p",
+    "p._config = types.SimpleNamespace(workerinput={'workerid': 'gw1'})",
+    "p._emit({'type': 'modules', 'files': ['a.py']})",
+    "p._config = types.SimpleNamespace()",
+    "p._emit({'type': 'end', 'exitstatus': 0})",
+  ].join("\n");
+  const { ROOT } = await import("./helpers.js");
+  const pluginDir = path.join(ROOT, "plugin/skills/prove-fix/scripts/pytest");
+  const python = spawnSync("python", ["--version"]).status === 0 ? "python" : "python3";
+  const r = spawnSync(python, ["-c", py], { env: { ...process.env, RECEIPTS_PYTEST_OUT: out, PYTHONPATH: pluginDir }, encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(fs.readdirSync(dir).sort(), ["out.json", "out.json.gw1"]);
+  fs.appendFileSync(out, '{"type": "result", "nodeid": "t');
+  assert.deepEqual(readRecords(dir, "out.json").map((x) => x.type), ["end", "modules"]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});

@@ -8,7 +8,7 @@ import type { TestCase } from "../types.js";
 import type { RawItem, RunOptions, RunResult } from "./index.js";
 
 /** One line of the plugin's output (see receipts_pytest.py). */
-type PluginRecord =
+export type PluginRecord =
   | {
       type: "result";
       nodeid: string;
@@ -51,6 +51,30 @@ export function runPytest(root: string, testFiles: string[], opts: RunOptions = 
   return byFile;
 }
 
+/**
+ * The controlling process writes `out.json`, each xdist worker its own
+ * `out.json.<worker id>`. A line cut short by a run killed for hanging is skipped:
+ * the records before it still count.
+ */
+export function readRecords(dir: string, base: string): PluginRecord[] {
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f === base || f.startsWith(`${base}.`))
+    .sort();
+  const records: PluginRecord[] = [];
+  for (const f of files) {
+    for (const line of fs.readFileSync(path.join(dir, f), "utf8").split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        records.push(JSON.parse(line) as PluginRecord);
+      } catch {
+        // a torn last line
+      }
+    }
+  }
+  return records;
+}
+
 function runPytestArgs(root: string, targetsIn: string[], opts: RunOptions): RunResult | undefined {
   // A root-level file named "-p..." must stay a path, not become an option.
   const targets = targetsIn.map((t) => (t.startsWith("-") ? `./${t}` : t));
@@ -80,9 +104,7 @@ function runPytestArgs(root: string, targetsIn: string[], opts: RunOptions): Run
     const timedOut = (proc.error as NodeJS.ErrnoException | undefined)?.code === "ETIMEDOUT";
     if (proc.error && !timedOut) throw proc.error;
 
-    const records: PluginRecord[] = fs.existsSync(outFile)
-      ? fs.readFileSync(outFile, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l) as PluginRecord)
-      : [];
+    const records = readRecords(scratch, path.basename(outFile));
     const ended = records.some((r) => r.type === "end");
     // Exit 4 is a usage error, such as a node id pytest could not find.
     if (!timedOut && (!ended || proc.status === 4)) {
