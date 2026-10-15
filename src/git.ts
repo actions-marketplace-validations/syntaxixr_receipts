@@ -162,3 +162,8 @@ export function modeAtRev(root: string, rev: string, path: string): string | und
 export function commitSubjects(root: string, mb: string): string[] {
   return git(root, ["log", "--format=%s", `${mb}..HEAD`]).split("\n").filter(Boolean);
 }
+
+/** Full messages of the change's commits, for matching against test failures. */
+export function commitMessages(root: string, mb: string): string {
+  return git(root, ["log", "--format=%B", `${mb}..HEAD`]);
+}

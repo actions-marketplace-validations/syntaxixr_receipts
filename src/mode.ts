@@ -23,6 +23,18 @@ function fromText(text: string): Mode | undefined {
   return PREFIX.find(([re]) => re.test(text.trim()))?.[1];
 }
 
+/** The pull request's title and body from the GitHub event, if there is one. */
+export function pullRequestText(): string {
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (!eventPath || !fs.existsSync(eventPath)) return "";
+  try {
+    const pr = JSON.parse(fs.readFileSync(eventPath, "utf8")).pull_request;
+    return pr ? `${pr.title ?? ""}\n${pr.body ?? ""}` : "";
+  } catch {
+    return "";
+  }
+}
+
 export function isMode(value: string): value is Mode {
   return value === "fix" || value === "feat" || value === "refactor";
 }

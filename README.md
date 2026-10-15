@@ -56,7 +56,7 @@ Receipts Check is listed in Anthropic's plugin directory for Claude Code, Cowork
 | ✅ | **PROVEN** | passes | fails | The test catches what the change fixes |
 | 🛡️ | **GUARD** | passes | passes | Guards neighboring behavior while another test proves the change. Healthy |
 | ⚠️ | **THEATER** | passes | passes | No test proves the change: they would all pass anyway |
-| 🟡 | **WEAK** | passes | fails on import | The code it calls did not exist yet. Normal for a feature, thin for a fix |
+| 🟡 | **WEAK** | passes | fails on import | The code it calls did not exist yet. Normal for a feature, thin for a fix. When the fix's commit or PR quotes that exact error, it is the bug reproduced and counts as PROVEN |
 | ❌ | **BROKEN** | fails | | The change does not pass its own test |
 | 🔁 | **FLAKY** | mixed | mixed | Different results on the same code |
 | ⏭️ | **SKIPPED** | skipped | | The test did not run |

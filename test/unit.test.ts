@@ -278,3 +278,15 @@ test("xdist workers write their own results file, and a torn line does not sink 
   assert.deepEqual(readRecords(dir, "out.json").map((x) => x.type), ["end", "modules"]);
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test("a WEAK failure counts as a reproduction only when the change quotes that error", async () => {
+  const { reproducesDescribedError } = await import("../src/verdict.js");
+  const err = "AttributeError: 'Client' object has no attribute 'close'";
+  assert.ok(reproducesDescribedError(err, "fix: AttributeError: 'Client' object has no attribute 'close'"));
+  assert.ok(reproducesDescribedError(err, "Fix #12: `Client` object has no attribute `close`, docs promise it"));
+  assert.ok(reproducesDescribedError("TypeError: foo is not a function", "foo is not a function since 2.1: re-export it"));
+  assert.ok(!reproducesDescribedError(err, "fix: add Client.close"));
+  assert.ok(!reproducesDescribedError("NameError: name 'x' is not defined", "x"));
+  assert.ok(!reproducesDescribedError(undefined, "anything"));
+  assert.ok(!reproducesDescribedError(err, ""));
+});

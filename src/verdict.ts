@@ -81,6 +81,24 @@ export function relabelGuards(mode: Mode, verdicts: Verdict[]): Verdict[] {
 }
 
 export const GUARD_REASON = "passes before and after: guards existing behavior";
+export const REPRODUCED_REASON = "fails on the old code with the error the change describes";
+
+const squash = (s: string): string => s.toLowerCase().replace(/[`'"‘’“”]/g, "").replace(/\s+/g, " ").trim();
+
+/**
+ * Sometimes the missing name is the bug: the report is "'Client' object has no
+ * attribute 'close'" and the fix adds close(). A WEAK test that fails on the old
+ * code with the error the commit or PR text quotes has reproduced that report.
+ * The error line must appear in the text (its exception class may be left out),
+ * so a test that merely calls a new name never qualifies.
+ */
+export function reproducesDescribedError(errorLine: string | undefined, changeText: string): boolean {
+  if (!errorLine || !changeText) return false;
+  const text = squash(changeText);
+  const line = squash(errorLine);
+  const message = squash(errorLine.replace(/^[\w.]*(Error|Exception)\s*:\s*/, ""));
+  return [line, message].some((s) => s.length >= 12 && text.includes(s));
+}
 
 /**
  * The line that says what went wrong: pytest's first `E ` line, or the first

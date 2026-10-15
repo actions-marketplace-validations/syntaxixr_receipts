@@ -339,3 +339,23 @@ test("a normal checkout import produces no warning", async () => {
   assert.deepEqual(run.receipt?.warnings, []);
   assert.deepEqual(verdicts(run.receipt), { [`${T}::test_1900_is_not_leap`]: "PROVEN" });
 });
+
+test("a fix whose report is the missing name itself is PROVEN when the test fails with that exact error", async () => {
+  const client = "class Client:\n    def open(self):\n        return True\n";
+  const fixed = "class Client:\n    def open(self):\n        return True\n\n    def close(self):\n        return None\n";
+  const test_ = "from client import Client\n\n\ndef test_close():\n    assert Client().close() is None\n";
+  const quoted = makeRepo({ "client.py": client });
+  commit(quoted, "fix: AttributeError: 'Client' object has no attribute 'close'\n\nThe docs promise close(), nobody wrote it.", {
+    "client.py": fixed,
+    "tests/test_client.py": test_,
+  });
+  const run = await runCli(quoted);
+  assert.deepEqual(verdicts(run.receipt), { "tests/test_client.py::test_close": "PROVEN" });
+  assert.match(run.receipt!.tests[0]!.reason, /error the change describes/);
+
+  // The same change described without the error: a test that only calls a new name stays WEAK.
+  const plainMsg = makeRepo({ "client.py": client });
+  commit(plainMsg, "fix: add Client.close", { "client.py": fixed, "tests/test_client.py": test_ });
+  const run2 = await runCli(plainMsg);
+  assert.deepEqual(verdicts(run2.receipt), { "tests/test_client.py::test_close": "WEAK" });
+});

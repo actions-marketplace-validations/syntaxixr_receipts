@@ -4,6 +4,7 @@ import { classify } from "./classify.js";
 import {
   changedFiles,
   changedLines,
+  commitMessages,
   commitSubjects,
   gitDir,
   hasTrackedChanges,
@@ -16,12 +17,12 @@ import {
 } from "./git.js";
 import { expandChangedTests } from "./locate/expand.js";
 import { findShadowedSources } from "./shadow.js";
-import { detectMode } from "./mode.js";
+import { detectMode, pullRequestText } from "./mode.js";
 import { availableRunners, lookup, type Runner } from "./runners/index.js";
 import { hasPendingJournal, restoreSources, revertSources } from "./swap.js";
 import type { ChangedFile, Outcome, Receipt, TestCase, Verdict } from "./types.js";
 import { plain, redact } from "./sanitize.js";
-import { GUARD_REASON, decide, firstErrorLine, relabelGuards } from "./verdict.js";
+import { GUARD_REASON, REPRODUCED_REASON, decide, firstErrorLine, relabelGuards, reproducesDescribedError } from "./verdict.js";
 import { VERSION } from "./version.js";
 
 export interface CheckOptions {
@@ -210,7 +211,15 @@ export function runCheck(opts: CheckOptions): Receipt {
       }
     }
 
-    const decided = tracks.map((tr) => decide(mode, tr.green, tr.red, tr.redDetail));
+    // A fix whose report is the missing name itself: failing with exactly the error
+    // the commit or PR quotes reproduces the bug, so it is proof, not WEAK.
+    const described = mode === "fix" ? `${commitMessages(root, mb)}\n${pullRequestText()}` : "";
+    const decided = tracks.map((tr) => {
+      const d = decide(mode, tr.green, tr.red, tr.redDetail);
+      return d.verdict === "WEAK" && reproducesDescribedError(firstErrorLine(tr.redDetail), described)
+        ? { verdict: "PROVEN" as Verdict, reason: REPRODUCED_REASON }
+        : d;
+    });
     let verdicts = relabelGuards(mode, decided.map((d) => d.verdict));
     // When the tests import the code from elsewhere, "passes on both sides"
     // says nothing about the change: report it as not judged, not as THEATER.
