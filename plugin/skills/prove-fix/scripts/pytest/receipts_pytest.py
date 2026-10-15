@@ -32,6 +32,11 @@ def pytest_configure(config):
 def _emit(record):
     out = os.environ.get("RECEIPTS_PYTEST_OUT")
     if out:
+        # One file per process: on Windows, appends from several processes (xdist
+        # workers finishing together) to one file overwrite and tear each other's lines.
+        worker = getattr(_config, "workerinput", None)
+        if worker is not None:
+            out = "%s.%s" % (out, worker.get("workerid", os.getpid()))
         with open(out, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
 

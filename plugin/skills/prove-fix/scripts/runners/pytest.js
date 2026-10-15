@@ -34,6 +34,31 @@ export function runPytest(root, testFiles, opts = {}, tests = []) {
         throw new Error(`pytest did not produce results for ${testFiles.join(", ")}`);
     return byFile;
 }
+/**
+ * The controlling process writes `out.json`, each xdist worker its own
+ * `out.json.<worker id>`. A line cut short by a run killed for hanging is skipped:
+ * the records before it still count.
+ */
+export function readRecords(dir, base) {
+    const files = fs
+        .readdirSync(dir)
+        .filter((f) => f === base || f.startsWith(`${base}.`))
+        .sort();
+    const records = [];
+    for (const f of files) {
+        for (const line of fs.readFileSync(path.join(dir, f), "utf8").split("\n")) {
+            if (!line.trim())
+                continue;
+            try {
+                records.push(JSON.parse(line));
+            }
+            catch {
+                // a torn last line
+            }
+        }
+    }
+    return records;
+}
 function runPytestArgs(root, targetsIn, opts) {
     // A root-level file named "-p..." must stay a path, not become an option.
     const targets = targetsIn.map((t) => (t.startsWith("-") ? `./${t}` : t));
@@ -63,9 +88,7 @@ function runPytestArgs(root, targetsIn, opts) {
         const timedOut = proc.error?.code === "ETIMEDOUT";
         if (proc.error && !timedOut)
             throw proc.error;
-        const records = fs.existsSync(outFile)
-            ? fs.readFileSync(outFile, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l))
-            : [];
+        const records = readRecords(scratch, path.basename(outFile));
         const ended = records.some((r) => r.type === "end");
         // Exit 4 is a usage error, such as a node id pytest could not find.
         if (!timedOut && (!ended || proc.status === 4)) {
